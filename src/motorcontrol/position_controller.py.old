@@ -1,0 +1,58 @@
+class TrapezoidalPlanner:
+    def __init__(self, pos0, posf, vmax, amax):
+        self.pos0 = pos0
+        self.posf = posf
+        self.vmax = vmax
+        self.amax = amax
+
+        self.direction = 1 if posf >= pos0 else -1
+        self.D = abs(posf - pos0)
+
+        self.Ta = self.vmax / self.amax
+        self.Da = 0.5 * self.amax * self.Ta ** 2
+
+        if 2 * self.Da < self.D:
+            self.Tc = (self.D - 2 * self.Da) / self.vmax
+        else:
+            self.Ta = math.sqrt(self.D / self.amax)
+            self.vmax = self.amax * self.Ta
+            self.Tc = 0.0
+
+        self.Tf = 2 * self.Ta + self.Tc
+
+    def get_ref(self, t):
+        if t < 0:
+            pos = self.pos0
+            vel = 0.0
+        elif t < self.Ta:
+            vel = self.amax * t
+            pos = self.pos0 + 0.5 * self.amax * t ** 2
+        elif t < self.Ta + self.Tc:
+            vel = self.vmax
+            pos = self.pos0 + self.Da + self.vmax * (t - self.Ta)
+        elif t < self.Tf:
+            td = t - (self.Ta + self.Tc)
+            vel = self.vmax - self.amax * td
+            pos = self.pos0 + self.Da + self.vmax * self.Tc + self.vmax * td - 0.5 * self.amax * td ** 2
+        else:
+            pos = self.posf
+            vel = 0.0
+
+        return self.direction * pos, self.direction * vel
+
+class PositionControllerPID:
+    def __init__(self, kp=2.0, ki=0.0, kd=0.0):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.integral_error = 0.0
+        self.prev_error = 0.0
+
+    def update(self, pos_ref, pos_real, dt):
+        error = pos_ref - pos_real
+        self.integral_error += error * dt
+        derivative = (error - self.prev_error) / dt if dt > 0 else 0.0
+
+        vel_ref = self.kp * error + self.ki * self.integral_error + self.kd * derivative
+        self.prev_error = error
+        return vel_ref
