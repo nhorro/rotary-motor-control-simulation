@@ -8,7 +8,9 @@ public:
     RotaryMotor(double inertia, double friction_viscous, double max_torque,
                 double friction_coulomb = 0.0, double external_torque = 0.0);
 
+    void reset(double position);
     void set_throttle(double throttle) override;
+    double get_throttle() const override;
     void update(double dt) override;
 
     double get_position_deg() const override;

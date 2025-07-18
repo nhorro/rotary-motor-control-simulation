@@ -15,9 +15,22 @@ RotaryMotor::RotaryMotor(double inertia, double friction_viscous, double max_tor
       velocity_(0.0),
       last_net_torque_(0.0) {}
 
+
+void RotaryMotor::reset(double position) {
+    position_ = position;
+    position_unwrapped_ = position;
+    throttle_ = 0;
+    velocity_ = 0;
+    last_net_torque_ = 0;
+}
+
 void RotaryMotor::set_throttle(double throttle) {
     // Nuevo rango: [-1.0, 1.0]
     throttle_ = std::clamp(throttle, -1.0, 1.0);
+}
+
+double RotaryMotor::get_throttle() const{
+    return throttle_;
 }
 
 void RotaryMotor::update(double dt) {
