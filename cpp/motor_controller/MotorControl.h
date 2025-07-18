@@ -45,6 +45,16 @@ public:
     void setFixedSpeed(double speedDegPerSec);
     void updateEncoder(double angleDeg);
 
+    Mode getMode() const { return mode_; }
+    double getScanRangeStartAngle() const { return scanStart_; }
+    double getScanRangeEndAngle() const { return scanEnd_; }
+    double getManualTarget() const { return manualTarget_; }
+
+    enum class ScanState { GOTO_START, SCANNING_FORWARD, SCANNING_BACKWARD };
+    ScanState getScanState() const { return scanState_; }
+    
+    
+
 private:
     void controlLoop();
     void handleStopped();
@@ -52,7 +62,7 @@ private:
     void handleRotating();
     void handleScanning();
 
-    enum class ScanState { GOTO_START, SCANNING_FORWARD, SCANNING_BACKWARD };
+    
 
     std::mutex mtx_;
     std::condition_variable cv_;

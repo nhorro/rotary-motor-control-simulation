@@ -38,7 +38,7 @@ private:
 
 int main() {
     const double dt = 0.01;  // 10ms
-    const double total_time = 10.0;
+    const double total_time = 20.0;
 
     // Crear simulador
     RotaryMotor motor(
@@ -58,11 +58,16 @@ int main() {
     control.start();
 
     // Definir objetivo
-    control.setManualTarget(90.0);
-    control.setMode(MotorControl::Mode::MANUAL);
+    //control.setManualTarget(90.0);        
+    //control.setMode(MotorControl::Mode::MANUAL);
+
+
+    
+    control.setScanRange(100.0,200.0);
+    control.setMode(MotorControl::Mode::SCANNING);
 
     std::ofstream log("manual_control_test.csv");
-    log << "t,pos_deg,vel_deg_s,target,throttle,cmd\n";
+    log << "t,pos_deg,vel_deg_s,mode,scan_state,manual_target,scan_initial,scan_end,throttle,cmd\n";
 
     // Simulación
     for (double t = 0.0; t < total_time; t += dt) {
@@ -77,7 +82,17 @@ int main() {
         motor.update(dt);
 
         // Loguear
-        log << t << "," << pos << "," << motor.get_velocity_deg_s() << "," << 90.0 << "," << motor.get_throttle() << "," << static_cast<int>(actuator.get_last_command()) << "\n";
+        log << t 
+            << "," << pos 
+            << "," << motor.get_velocity_deg_s()
+            << "," << static_cast<int>(control.getMode())
+            << "," << static_cast<int>(control.getScanState())                 
+            << "," << control.getManualTarget() 
+            << "," << control.getScanRangeStartAngle() 
+            << "," << control.getScanRangeEndAngle()             
+            << "," << motor.get_throttle() 
+            << "," << static_cast<int>(actuator.get_last_command()) 
+            << "\n";
 
         
         // Esperar para simular tiempo real
